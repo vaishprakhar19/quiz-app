@@ -1,4 +1,4 @@
-# Quiz Game
+# Quizzer
 
 ## Overview
 This is a quiz game where players answer questions by catching falling options with a basket using arrow keys. The game has a scoring system where players earn points for correct answers and lose points for mistakes. Players can proceed through questions and see their performance at the end, along with answer reviews, detailed solution, study material, and practice set.
