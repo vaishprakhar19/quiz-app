@@ -25,7 +25,7 @@ const HowToPlay = () => {
         <li>Reach the end of the quiz to see your score!</li>
       </ul>
       <button onClick={handleGoBack} className="back-button">
-        Back to Landing Page
+        Back to Main Menu
       </button>
     </div>
   );

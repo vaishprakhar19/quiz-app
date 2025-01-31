@@ -14,7 +14,7 @@ const Results = () => {
   };
 
   const handleMain = () => {
-    navigate("/landing");
+    navigate("/");
   };
   return (
     <div className="results-container">
