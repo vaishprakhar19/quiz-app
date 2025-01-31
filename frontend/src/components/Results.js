@@ -1,13 +1,21 @@
 import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import "./Results.css";
 
 const Results = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const { score, totalQuestions, selectedAnswers } = location.state;
   const [expandedIndex, setExpandedIndex] = useState(null);
   console.log(selectedAnswers);
+  const handlePlayGame = () => {
+    navigate("/quiz");
+  };
+
+  const handleMain = () => {
+    navigate("/landing");
+  };
   return (
     <div className="results-container">
       <h2 className="results-heading">Your Results</h2>
@@ -40,6 +48,14 @@ const Results = () => {
             {expandedIndex === `practice-${index}` && <div dangerouslySetInnerHTML={{ __html: answer.practiceMaterial }} />}
           </div>
         ))}
+      </div>
+      <div className="button-container">
+        <button onClick={handlePlayGame} className="play-button">
+          Restart
+        </button>
+        <button onClick={handleMain} className="how-to-play-button">
+          Main Menu
+        </button>
       </div>
     </div>
   );

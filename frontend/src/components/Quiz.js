@@ -44,8 +44,8 @@ const Quiz = () => {
               id: opt.id,
               text: opt.description || "Unknown Option",
               isCorrect: opt.is_correct || false,
-              positionX: Math.random() * 70 + 15,
-              positionY: -10 - index * 25, // Start above the screen, making space between options
+              positionX: [5, 27, 55, 80][index], // Fixed horizontal positions (10%, 30%, 50%, 70%)
+              positionY: Math.random() * -50 - 10,
             })) || []
           ),
         }));
@@ -82,6 +82,7 @@ const Quiz = () => {
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, []);
+  
 
   // Handle answer selection via collision
   const handleAnswerClick = useCallback((selectedOption) => {
@@ -192,29 +193,29 @@ const Quiz = () => {
         const updatedOptions = prevOptions.map((option) => {
           // Move options down
           const updatedOption = { ...option, positionY: option.positionY + 0.3 };
-  
+
           // If the option has reached the basket, handle the answer click
           if (updatedOption.positionY > 80 && updatedOption.positionY < 100 && Math.abs(updatedOption.positionX - basketPosition) < 10) {
             handleAnswerClick(updatedOption);
             return null; // Remove caught option from the falling list
           }
-  
+
           return updatedOption.positionY <= 100 ? updatedOption : null; // Keep options that haven't fallen off the screen
         }).filter(Boolean); // Remove null values
-  
+
         // If ALL options have fallen off the screen (missed answer)
         if (prevOptions.length > 0 && updatedOptions.length === 0) {
           handleMissedAnswer();
         }
-  
+
         return updatedOptions;
       });
     };
-  
+
     const interval = setInterval(checkCollisionAndMoveDown, 50);
-    return () => clearInterval(interval); 
+    return () => clearInterval(interval);
   }, [basketPosition, handleAnswerClick, handleMissedAnswer]);
-  
+
 
 
 
