@@ -79,19 +79,19 @@ This is a quiz game where players answer questions by catching falling options w
 ## Screenshots
 
 ### Landing Page
-![Landing Page](./assets/screenshot1.png)
+![Landing Page](./assets/Screenshot1.png)
 
 ### Main Game Screen
-![Main Game](./assets/screenshot2.png)
+![Main Game](./assets/Screenshot2.png)
 
 ### Responsive Design in Action
-![Responsive Design](./assets/screenshot3.png)
+![Responsive Design](./assets/Screenshot3.png)
 
 ### Results Page
-![Results Page](./assets/screenshot4.png)
+![Results Page](./assets/Screenshot4.png)
 
 ### How To Play
-![How To Play](./assets/screenshot5.png)
+![How To Play](./assets/Screenshot5.png)
 
 ---
 
@@ -99,7 +99,7 @@ This is a quiz game where players answer questions by catching falling options w
 
 Watch the video below to see how the game works.
 
-[![Quiz Game Demo](./assets/screenshot2.png)](https://www.youtube.com/watch?v=your-video-link)
+[![Quiz Game Demo](./assets/Screenshot2.png)](https://www.youtube.com/watch?v=your-video-link)
 
 ---
 
