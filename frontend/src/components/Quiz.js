@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Quiz.css"; // Import CSS for game styles
+import "./Quiz.css";
+import basket from "../resources/basket.png";
 
 const Quiz = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -35,7 +36,6 @@ const Quiz = () => {
         const formattedQuestions = data.questions.map((q) => ({
           id: q.id,
           question: q.description || "Unknown Question",
-          correctAnswer: q.options?.find((opt) => opt.isCorrect)?.description || "Unknown",
           detailedSolution: q.detailed_solution || "Unknown",
           content: q.reading_material?.content_sections?.join(" ") || "<p>No content available</p>",
           practiceMaterial: q.reading_material?.practice_material?.content?.join(" ") || "<p>No practice material available</p>",
@@ -44,12 +44,12 @@ const Quiz = () => {
               id: opt.id,
               text: opt.description || "Unknown Option",
               isCorrect: opt.is_correct || false,
-              positionX: Math.random() * 80 + 10,
-              positionY: -10 - index * 15, // Start above the screen, making space between options
+              positionX: Math.random() * 70 + 15,
+              positionY: -10 - index * 25, // Start above the screen, making space between options
             })) || []
           ),
         }));
-
+        console.log(formattedQuestions);
         // Shuffle the questions only once
         const shuffledData = shuffleArray(formattedQuestions);
         setShuffledQuestions(shuffledData);
@@ -83,26 +83,6 @@ const Quiz = () => {
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, []);
 
-  // Move falling options downward
-  const fallingOptionsRef = useRef(fallingOptions); // Reference to store falling options
-  fallingOptionsRef.current = fallingOptions; // Update the reference on each render
-
-  useEffect(() => {
-    if (!fallingOptions.length) return;
-
-    const interval = setInterval(() => {
-      const updatedOptions = fallingOptionsRef.current.map((option) => ({
-        ...option,
-        positionY: option.positionY + 1.2, // Move down by 2 units each interval
-      }));
-
-      fallingOptionsRef.current = updatedOptions; // Persist the updated positions in the ref
-      setFallingOptions([...updatedOptions]); // Use state to trigger rendering
-    }, 100);
-
-    return () => clearInterval(interval); // Cleanup interval on component unmount
-  }, [fallingOptions]);
-
   // Handle answer selection via collision
   const handleAnswerClick = useCallback((selectedOption) => {
     let updatedScore = score;
@@ -119,7 +99,7 @@ const Quiz = () => {
     setSelectedAnswers([...selectedAnswers, {
       question: shuffledQuestions[currentQuestion]?.question || "Unknown",
       selected: selectedOption.text,
-      correct: shuffledQuestions[currentQuestion]?.correctAnswer || "Unknown",
+      correctAnswer: shuffledQuestions[currentQuestion]?.options.find(opt => opt.isCorrect).text,
       detailedSolution: shuffledQuestions[currentQuestion]?.detailedSolution || "Unknown",
       content: shuffledQuestions[currentQuestion]?.content || "Unknown",
       practiceMaterial: shuffledQuestions[currentQuestion]?.practiceMaterial || "Unknown"
@@ -137,49 +117,106 @@ const Quiz = () => {
       handleShowResults();
     }
     // eslint-disable-next-line 
-  }, [score, mistakes, maxMistakes, currentQuestion, shuffledQuestions, selectedAnswers]); // Add dependencies for memoization
+  }, [score, mistakes, maxMistakes, currentQuestion, shuffledQuestions, selectedAnswers]);
 
-
-  // Navigate to results page with full review
-  const handleShowResults = () => {
+  const handleShowResults = useCallback(() => {
     // Ensure the last question's answer is added before navigating
     if (currentQuestion < shuffledQuestions.length) {
-      setSelectedAnswers((prevAnswers) => [
-        ...prevAnswers,
-        {
-          question: shuffledQuestions[currentQuestion]?.question || "Unknown",
-          selected: "No Answer", // Provide a default value if necessary
-          correct: shuffledQuestions[currentQuestion]?.correctAnswer || "Unknown",
-          detailedSolution: shuffledQuestions[currentQuestion]?.detailedSolution || "Unknown",
-          content: shuffledQuestions[currentQuestion]?.content || "Unknown",
-          practiceMaterial: shuffledQuestions[currentQuestion]?.practiceMaterial || "Unknown"
-        }
-      ]);
-    }
+      setSelectedAnswers((prevAnswers) => {
+        const updatedAnswers = [
+          ...prevAnswers,
+          {
+            question: shuffledQuestions[currentQuestion]?.question || "Unknown",
+            selected: "No Answer",
+            correct: shuffledQuestions[currentQuestion]?.correctAnswer || "Unknown",
+            detailedSolution: shuffledQuestions[currentQuestion]?.detailedSolution || "Unknown",
+            content: shuffledQuestions[currentQuestion]?.content || "Unknown",
+            practiceMaterial: shuffledQuestions[currentQuestion]?.practiceMaterial || "Unknown",
+          },
+        ];
 
-    navigate("/results", {
-      state: { score, totalQuestions: shuffledQuestions.length, selectedAnswers },
-    });
-  };
+        // Remove duplicates based on question text
+        const uniqueAnswers = updatedAnswers.filter(
+          (value, index, self) =>
+            index === self.findIndex((t) => t.question === value.question)
+        );
 
-
-  // Collision detection: Check if an option is caught by the basket
-  useEffect(() => {
-    const checkCollision = () => {
-      setFallingOptions((prevOptions) => {
-        return prevOptions.filter((option) => {
-          if (option.positionY > 85 && option.positionY < 100 && Math.abs(option.positionX - basketPosition) < 10) {
-            handleAnswerClick(option);
-            return false;
-          }
-          return true;
+        // Navigate after the state update
+        navigate("/results", {
+          state: { score, totalQuestions: shuffledQuestions.length, selectedAnswers: uniqueAnswers },
         });
+
+        return uniqueAnswers; // Update state with unique answers
+      });
+    } else {
+      // If all questions are completed, navigate without adding missed answers again
+      const uniqueAnswers = selectedAnswers.filter(
+        (value, index, self) =>
+          index === self.findIndex((t) => t.question === value.question)
+      );
+      navigate("/results", {
+        state: { score, totalQuestions: shuffledQuestions.length, selectedAnswers: uniqueAnswers },
+      });
+    }
+  }, [currentQuestion, shuffledQuestions, score, navigate, selectedAnswers]);
+
+
+
+  const handleMissedAnswer = useCallback(() => {
+    setScore((prevScore) => prevScore - negativeMarks);
+    setMistakes((prevMistakes) => prevMistakes + 1);
+
+    // Track missed answers separately to prevent duplicates
+    setSelectedAnswers([...selectedAnswers, {
+      question: shuffledQuestions[currentQuestion]?.question || "Unknown",
+      selected: "No Answer",
+      correctAnswer: shuffledQuestions[currentQuestion]?.options.find(opt => opt.isCorrect).text,
+      detailedSolution: shuffledQuestions[currentQuestion]?.detailedSolution || "Unknown",
+      content: shuffledQuestions[currentQuestion]?.content || "Unknown",
+      practiceMaterial: shuffledQuestions[currentQuestion]?.practiceMaterial || "Unknown"
+    }]);
+
+    // Move to the next question
+    if (currentQuestion + 1 < shuffledQuestions.length) {
+      setCurrentQuestion((prev) => prev + 1);
+    } else {
+      handleShowResults();
+    }
+  }, [currentQuestion, shuffledQuestions, handleShowResults, negativeMarks, selectedAnswers]);
+
+
+
+  useEffect(() => {
+    const checkCollisionAndMoveDown = () => {
+      setFallingOptions((prevOptions) => {
+        const updatedOptions = prevOptions.map((option) => {
+          // Move options down
+          const updatedOption = { ...option, positionY: option.positionY + 0.3 };
+  
+          // If the option has reached the basket, handle the answer click
+          if (updatedOption.positionY > 80 && updatedOption.positionY < 100 && Math.abs(updatedOption.positionX - basketPosition) < 10) {
+            handleAnswerClick(updatedOption);
+            return null; // Remove caught option from the falling list
+          }
+  
+          return updatedOption.positionY <= 100 ? updatedOption : null; // Keep options that haven't fallen off the screen
+        }).filter(Boolean); // Remove null values
+  
+        // If ALL options have fallen off the screen (missed answer)
+        if (prevOptions.length > 0 && updatedOptions.length === 0) {
+          handleMissedAnswer();
+        }
+  
+        return updatedOptions;
       });
     };
+  
+    const interval = setInterval(checkCollisionAndMoveDown, 50);
+    return () => clearInterval(interval); 
+  }, [basketPosition, handleAnswerClick, handleMissedAnswer]);
+  
 
-    const interval = setInterval(checkCollision, 100);
-    return () => clearInterval(interval);
-  }, [basketPosition, fallingOptions, handleAnswerClick]);
+
 
   return (
     <div className="game-container" ref={gameContainerRef}>
@@ -205,14 +242,14 @@ const Quiz = () => {
       ))}
 
       {/* Basket controlled by arrow keys */}
-      <div
+      <img
+        src={basket}
         className="basket"
+        alt="basket"
         style={{
           left: `${basketPosition}%`,
         }}
-      >
-        🏀
-      </div>
+      />
     </div>
   );
 };

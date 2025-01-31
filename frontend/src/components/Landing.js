@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./Quiz.css";
+import logo from "../resources/quizzer.png"
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -17,12 +18,12 @@ const Landing = () => {
     <div className="landing-container">
       <div className="logo-container">
         <img
-          src="your-logo.png" // Put your logo file here
+          src={logo} // Put your logo file here
           alt="Logo"
           className="logo"
         />
       </div>
-      <h1>Welcome to the Quiz Game</h1>
+      <h1>Quizzer</h1>
       <div className="button-container">
         <button onClick={handlePlayGame} className="play-button">
           Play Game
