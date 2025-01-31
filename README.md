@@ -1,16 +1,13 @@
-Creating a comprehensive README for your project with pictures and a video involves detailing the setup, functionality, and how users can interact with the app. Here's a template for your *README.md* file, which includes sections for installation, features, controls, and a video demonstration.
-
----
-
 # Quiz Game
 
 ## Overview
-This is a quiz game where players answer questions by catching falling options with a basket using arrow keys or touch gestures. The game has a scoring system where players earn points for correct answers and lose points for mistakes. Players can proceed through questions and see their performance at the end.
+This is a quiz game where players answer questions by catching falling options with a basket using arrow keys. The game has a scoring system where players earn points for correct answers and lose points for mistakes. Players can proceed through questions and see their performance at the end, along with answer reviews, detailed solution, study material, and practice set.
 
 ## Features
 - *Dynamic Quiz*: Questions and options are fetched from an API and displayed in the game.
 - *Falling Options*: Answer choices fall towards the basket. The player must catch the correct option.
-- *Responsive Controls*: Arrow keys for desktop and touch gestures for mobile devices control the basket.
+- *Responsive Controls*: Arrow keys for desktop control the basket.
+- *Responsive Design*: Fully Responsive design to be accessible from any device.
 - *Scoring System*: Correct answers earn points, and incorrect ones result in a penalty.
 - *End Results*: View score and detailed solutions at the end of the game.
 
